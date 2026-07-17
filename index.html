@@ -417,14 +417,42 @@ body {
     <p class="subtitle">小爽随便挑，奇奇请客！</p>
     <div class="food-grid" id="foodGrid"></div>
     <p id="selectedFoodText" style="color:#E64980;margin-top:12px;font-size:1em;min-height:24px;"></p>
-    <button class="btn btn-confirm" id="btnFoodConfirm" disabled onclick="goToLove()">
+    <button class="btn btn-confirm" id="btnFoodConfirm" disabled onclick="goToOutfit()">
       就吃这个！😋
     </button>
   </div>
 </div>
 
-<!-- ==================== 页面4: 浪漫告白 ==================== -->
+<!-- ==================== 页面4: 穿搭选择 ==================== -->
 <div class="page" id="page4">
+  <div class="card">
+    <div style="font-size:50px;margin-bottom:5px;">👗</div>
+    <h1 class="title">约会穿什么风格呢？</h1>
+    <p class="subtitle">小爽穿什么都好看~</p>
+    <div class="food-grid" id="outfitGrid"></div>
+    <p id="selectedOutfitText" style="color:#E64980;margin-top:12px;font-size:1em;min-height:24px;"></p>
+    <button class="btn btn-confirm" id="btnOutfitConfirm" disabled onclick="goToLocation()">
+      就穿这个！✨
+    </button>
+  </div>
+</div>
+
+<!-- ==================== 页面5: 约会地点 ==================== -->
+<div class="page" id="page5">
+  <div class="card">
+    <div style="font-size:50px;margin-bottom:5px;">🎠</div>
+    <h1 class="title">想去哪里约会呢？</h1>
+    <p class="subtitle">小爽想去哪，奇奇都陪着~</p>
+    <div class="food-grid" id="locationGrid"></div>
+    <p id="selectedLocationText" style="color:#E64980;margin-top:12px;font-size:1em;min-height:24px;"></p>
+    <button class="btn btn-confirm" id="btnLocationConfirm" disabled onclick="goToLove()">
+      就去这里！🎉
+    </button>
+  </div>
+</div>
+
+<!-- ==================== 页面6: 浪漫告白 ==================== -->
+<div class="page" id="page6">
   <div class="card" style="text-align:center;">
     <div class="love-hearts-container">
       <span class="big-emoji">💖</span>
@@ -436,6 +464,12 @@ body {
     </div>
     <div style="margin:5px 0;">
       <span class="love-ribbon" id="ribbonFood"></span>
+    </div>
+    <div style="margin:5px 0;">
+      <span class="love-ribbon" id="ribbonOutfit"></span>
+    </div>
+    <div style="margin:5px 0;">
+      <span class="love-ribbon" id="ribbonLocation"></span>
     </div>
     <!-- 悄悄话 -->
     <div style="margin:18px 0;padding:16px 20px;background:linear-gradient(135deg,#FFF0F5,#FFE4E1);border-radius:20px;border:2px dashed #FFB6C1;">
@@ -451,8 +485,11 @@ body {
 <script>
 // ========== 全局状态 ==========
 let noClickCount = 0;
+const noClickThreshold = Math.random() < 0.5 ? 5 : 6; // 随机5或6次
 let selectedDate = null;
 let selectedFood = null;
+let selectedOutfit = null;
+let selectedLocation = null;
 
 // ========== 浮动爱心 + 樱花 ==========
 function createFloatingHearts() {
@@ -517,7 +554,7 @@ function handleNo(event) {
   const btnNo = document.getElementById('btnNo');
   const btnGroup = document.getElementById('btnGroup');
 
-  if (noClickCount >= 3) {
+  if (noClickCount >= noClickThreshold) {
     // 两个按钮都变成"是的"
     btnNo.className = 'btn btn-yes';
     btnNo.textContent = '是的是的！😍';
@@ -732,21 +769,97 @@ function goToFood() {
   document.getElementById('btnFoodConfirm').disabled = !selectedFood;
 }
 
-// ========== 页面4: 浪漫告白 ==========
+// ========== 页面4: 穿搭选择 ==========
+const outfits = [
+  { name: '小裙子', emoji: '👗', desc: '仙气飘飘超温柔' },
+  { name: '休闲风', emoji: '👕', desc: '舒服自在又好看' },
+  { name: '甜酷风', emoji: '🖤', desc: '又甜又飒就是你' },
+  { name: '仙女风', emoji: '🧚', desc: '我的小仙女下凡' },
+  { name: '运动风', emoji: '👟', desc: '活力满满超阳光' },
+  { name: '复古风', emoji: '📻', desc: '港风美女就是妳' },
+  { name: '学院风', emoji: '🎒', desc: '清纯可爱校园感' },
+  { name: '辣妹风', emoji: '🌶️', desc: '今天全场你最美' },
+];
+
+function buildOutfitGrid() {
+  const grid = document.getElementById('outfitGrid');
+  grid.innerHTML = outfits.map((f, i) => `
+    <div class="food-card" id="outfit${i}" onclick="selectOutfit(${i})">
+      <span class="food-emoji">${f.emoji}</span>
+      ${f.name}
+      <div style="font-size:0.65em;opacity:0.6;margin-top:4px;">${f.desc}</div>
+    </div>
+  `).join('');
+}
+
+function selectOutfit(index) {
+  selectedOutfit = outfits[index];
+  document.querySelectorAll('#outfitGrid .food-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('outfit' + index).classList.add('selected');
+  document.getElementById('selectedOutfitText').textContent = `👗 已选择：${selectedOutfit.emoji} ${selectedOutfit.name}`;
+  document.getElementById('btnOutfitConfirm').disabled = false;
+}
+
+function goToOutfit() {
+  buildOutfitGrid();
+  switchPage('page3', 'page4');
+  document.getElementById('btnOutfitConfirm').disabled = !selectedOutfit;
+}
+
+// ========== 页面5: 约会地点 ==========
+const locations = [
+  { name: '电影院', emoji: '🎬', desc: '靠在一起看场电影' },
+  { name: '游乐园', emoji: '🎡', desc: '坐摩天轮到最高点' },
+  { name: '逛街', emoji: '🛍️', desc: '给你买好看的衣服' },
+  { name: '公园散步', emoji: '🌳', desc: '手牵手慢慢走' },
+  { name: '密室逃脱', emoji: '🔐', desc: '考验默契的时候到啦' },
+  { name: '猫咖', emoji: '🐱', desc: '撸猫喝咖啡超治愈' },
+  { name: '看展', emoji: '🎨', desc: '一起拍拍拍' },
+  { name: 'KTV', emoji: '🎤', desc: '只唱给你听' },
+];
+
+function buildLocationGrid() {
+  const grid = document.getElementById('locationGrid');
+  grid.innerHTML = locations.map((f, i) => `
+    <div class="food-card" id="loc${i}" onclick="selectLocation(${i})">
+      <span class="food-emoji">${f.emoji}</span>
+      ${f.name}
+      <div style="font-size:0.65em;opacity:0.6;margin-top:4px;">${f.desc}</div>
+    </div>
+  `).join('');
+}
+
+function selectLocation(index) {
+  selectedLocation = locations[index];
+  document.querySelectorAll('#locationGrid .food-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('loc' + index).classList.add('selected');
+  document.getElementById('selectedLocationText').textContent = `🎠 已选择：${selectedLocation.emoji} ${selectedLocation.name}`;
+  document.getElementById('btnLocationConfirm').disabled = false;
+}
+
+function goToLocation() {
+  buildLocationGrid();
+  switchPage('page4', 'page5');
+  document.getElementById('btnLocationConfirm').disabled = !selectedLocation;
+}
+
+// ========== 页面6: 浪漫告白 ==========
 function goToLove() {
-  // 填入日期和美食信息
+  // 填入所有选择
   const weekDay = weekDays[selectedDate.getDay()];
   const dateStr = `${selectedDate.getFullYear()}年${selectedDate.getMonth()+1}月${selectedDate.getDate()}日 星期${weekDay}`;
   document.getElementById('ribbonDate').textContent = `📅 ${dateStr}`;
   document.getElementById('ribbonFood').textContent = `${selectedFood.emoji} ${selectedFood.name}`;
+  document.getElementById('ribbonOutfit').textContent = `${selectedOutfit.emoji} ${selectedOutfit.name}`;
+  document.getElementById('ribbonLocation').textContent = `${selectedLocation.emoji} ${selectedLocation.name}`;
 
   // 悄悄话
   document.getElementById('secretMsg').innerHTML =
     '💌 <b>奇奇的悄悄话：</b><br>希望早点结束异地恋，我爱你小宝宝 💕';
 
-  switchPage('page3', 'page4');
+  switchPage('page5', 'page6');
 
-  // 页面4额外爱心爆发
+  // 页面额外爱心爆发
   burstHearts();
 }
 
