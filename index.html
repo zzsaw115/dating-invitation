@@ -555,6 +555,7 @@ function handleNo(event) {
   const btnGroup = document.getElementById('btnGroup');
 
   if (noClickCount >= noClickThreshold) {
+    console.log('达到阈值！noClickCount=' + noClickCount + ', threshold=' + noClickThreshold);
     // 两个按钮都变成"是的"
     btnNo.className = 'btn btn-yes';
     btnNo.textContent = '是的是的！😍';
