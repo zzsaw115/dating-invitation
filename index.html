@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>奇奇 ❤ 小爽</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'ZCOOL KuaiLe', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #FFE4E1 0%, #FFC0CB 30%, #FFB6C1 60%, #FFE4E1 100%);
+  background-attachment: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/* ===== 页面容器 ===== */
+.page {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  padding: 30px 20px;
+  animation: fadeInUp 0.6s ease-out;
+}
+.page.active { display: flex; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 装饰爱心 ===== */
+.floating-hearts {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.heart-particle {
+  position: absolute;
+  animation: floatUp linear infinite;
+  opacity: 0.6;
+  font-size: 24px;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(100vh) rotate(0deg) scale(1); opacity: 0.8; }
+  50%  { opacity: 0.4; }
+  100% { transform: translateY(-100px) rotate(360deg) scale(0.3); opacity: 0; }
+}
+
+/* ===== 主卡片 ===== */
+.card {
+  position: relative;
+  z-index: 1;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(10px);
+  border-radius: 30px;
+  padding: 40px 30px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(255,105,180,0.2), 0 0 0 1px rgba(255,255,255,0.8);
+  text-align: center;
+}
+
+/* ===== 标题 ===== */
+.title {
+  font-size: 2em;
+  color: #D6336C;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.subtitle {
+  font-size: 1.1em;
+  color: #E64980;
+  margin-bottom: 30px;
+  opacity: 0.8;
+}
+
+/* ===== 按钮 ===== */
+.btn {
+  font-family: inherit;
+  font-size: 1.3em;
+  padding: 16px 40px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  outline: none;
+  min-width: 200px;
+  box-shadow: 0 6px 20px rgba(255,105,180,0.3);
+}
+.btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 30px rgba(255,105,180,0.4);
+}
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-yes {
+  background: linear-gradient(135deg, #FF69B4, #FF1493);
+  color: white;
+  font-size: 1.4em;
+}
+
+.btn-no {
+  background: linear-gradient(135deg, #E0E0E0, #BDBDBD);
+  color: #666;
+  transition: all 0.25s ease;
+}
+
+.btn-food {
+  font-size: 1em;
+  padding: 12px 24px;
+  min-width: auto;
+}
+
+.btn-confirm {
+  background: linear-gradient(135deg, #FF69B4, #FF1493);
+  color: white;
+  margin-top: 20px;
+}
+
+/* ===== 按钮容器 ===== */
+.btn-group {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+  min-height: 120px;
+  align-items: center;
+}
+
+/* ===== 日历 ===== */
+.calendar {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+}
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  color: #D6336C;
+  font-size: 1.2em;
+}
+.calendar-header button {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #FF69B4;
+  padding: 5px 15px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.calendar-header button:hover {
+  background: rgba(255,105,180,0.15);
+}
+.calendar-header button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  color: #E64980;
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 0.95em;
+}
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1em;
+  color: #555;
+}
+.calendar-day:hover:not(.disabled):not(.empty) {
+  background: rgba(255,105,180,0.2);
+}
+.calendar-day.today {
+  border: 2px solid #FF69B4;
+  color: #D6336C;
+  font-weight: bold;
+}
+.calendar-day.selected {
+  background: #FF69B4;
+  color: white;
+  font-weight: bold;
+  transform: scale(1.1);
+}
+.calendar-day.disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+.calendar-day.empty {
+  cursor: default;
+}
+
+/* ===== 美食卡片 ===== */
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  width: 100%;
+  margin-top: 10px;
+}
+.food-card {
+  background: white;
+  border: 3px solid rgba(255,105,180,0.15);
+  border-radius: 20px;
+  padding: 22px 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  font-size: 1.15em;
+  color: #555;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+}
+.food-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(255,105,180,0.2);
+  border-color: #FFB6C1;
+}
+.food-card.selected {
+  border-color: #FF69B4;
+  background: linear-gradient(135deg, #FFF0F5, #FFE4E1);
+  color: #D6336C;
+  font-weight: bold;
+  box-shadow: 0 6px 25px rgba(255,105,180,0.3);
+  transform: scale(1.03);
+}
+.food-emoji {
+  font-size: 2.5em;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ===== 告白页 ===== */
+.love-hearts-container {
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.big-emoji {
+  font-size: 80px;
+  animation: bounceHeart 1s ease-in-out infinite;
+}
+@keyframes bounceHeart {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+.love-text {
+  font-size: 2.2em;
+  color: #D6336C;
+  margin: 15px 0;
+  line-height: 1.4;
+}
+.love-detail {
+  font-size: 1.1em;
+  color: #E64980;
+  margin: 8px 0;
+  opacity: 0.85;
+}
+.love-footer {
+  margin-top: 30px;
+  font-size: 1em;
+  color: #FF69B4;
+  opacity: 0.7;
+}
+.love-ribbon {
+  display: inline-block;
+  background: linear-gradient(135deg, #FF69B4, #FF1493);
+  color: white;
+  padding: 8px 24px;
+  border-radius: 25px;
+  margin: 5px 0;
+  font-size: 1em;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 400px) {
+  .title { font-size: 1.5em; }
+  .btn { font-size: 1.1em; padding: 14px 30px; }
+  .food-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .food-card { padding: 14px 8px; font-size: 1em; }
+  .food-emoji { font-size: 2em; }
+  .love-text { font-size: 1.6em; }
+  .card { padding: 25px 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 浮动爱心背景 -->
+<div class="floating-hearts" id="floatingHearts"></div>
+
+<!-- ==================== 页面1: 邀请页 ==================== -->
+<div class="page active" id="page1">
+  <div class="card">
+    <div style="font-size:60px;margin-bottom:10px;">💌</div>
+    <h1 class="title">小爽~ 💕</h1>
+    <p class="subtitle">你想和你的男朋友奇奇约会吗？</p>
+    <div class="btn-group" id="btnGroup">
+      <button class="btn btn-yes" id="btnYes1" onclick="goToDate()">
+        是的是的！😍
+      </button>
+      <button class="btn btn-no" id="btnNo" onclick="handleNo(event)">
+        不想 😝
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 页面2: 日期选择 ==================== -->
+<div class="page" id="page2">
+  <div class="card">
+    <div style="font-size:50px;margin-bottom:5px;">📅</div>
+    <h1 class="title">选一个约会日期吧~</h1>
+    <p class="subtitle">小爽想哪天和我约会呢？</p>
+    <div class="calendar" id="calendar"></div>
+    <p id="selectedDateText" style="color:#E64980;margin-top:12px;font-size:1em;min-height:24px;"></p>
+    <button class="btn btn-confirm" id="btnDateConfirm" disabled onclick="goToFood()">
+      就这天啦！💕
+    </button>
+  </div>
+</div>
+
+<!-- ==================== 页面3: 美食选择 ==================== -->
+<div class="page" id="page3">
+  <div class="card">
+    <div style="font-size:50px;margin-bottom:5px;">🍽️</div>
+    <h1 class="title">约会想吃什么呢？</h1>
+    <p class="subtitle">小爽随便挑，奇奇请客！</p>
+    <div class="food-grid" id="foodGrid"></div>
+    <p id="selectedFoodText" style="color:#E64980;margin-top:12px;font-size:1em;min-height:24px;"></p>
+    <button class="btn btn-confirm" id="btnFoodConfirm" disabled onclick="goToLove()">
+      就吃这个！😋
+    </button>
+  </div>
+</div>
+
+<!-- ==================== 页面4: 浪漫告白 ==================== -->
+<div class="page" id="page4">
+  <div class="card" style="text-align:center;">
+    <div class="love-hearts-container">
+      <span class="big-emoji">💖</span>
+      <h1 class="love-text">奇奇一直等你哦~</h1>
+      <span class="big-emoji" style="font-size:60px;animation-delay:0.3s;">🐻</span>
+    </div>
+    <div style="margin:10px 0;">
+      <span class="love-ribbon" id="ribbonDate"></span>
+    </div>
+    <div style="margin:5px 0;">
+      <span class="love-ribbon" id="ribbonFood"></span>
+    </div>
+    <p class="love-detail" style="margin-top:20px;">
+      说好啦，不许反悔哦~<br>拉钩上吊一百年不许变！
+    </p>
+    <p class="love-footer">—— 爱你的奇奇 ❤️</p>
+  </div>
+</div>
+
+<script>
+// ========== 全局状态 ==========
+let noClickCount = 0;
+let selectedDate = null;
+let selectedFood = null;
+
+// ========== 浮动爱心 ==========
+function createFloatingHearts() {
+  const container = document.getElementById('floatingHearts');
+  const hearts = ['💕','💖','💗','💝','🌸','🩷','✨','💓'];
+  for (let i = 0; i < 20; i++) {
+    const span = document.createElement('span');
+    span.className = 'heart-particle';
+    span.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    span.style.left = Math.random() * 100 + '%';
+    span.style.animationDuration = (8 + Math.random() * 12) + 's';
+    span.style.animationDelay = Math.random() * 10 + 's';
+    span.style.fontSize = (16 + Math.random() * 28) + 'px';
+    container.appendChild(span);
+  }
+}
+createFloatingHearts();
+
+// ========== 页面切换 ==========
+function switchPage(fromId, toId) {
+  document.getElementById(fromId).classList.remove('active');
+  document.getElementById(toId).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ========== 页面1: 拒绝按钮逻辑 ==========
+const noMessages = [
+  { text: '想嘛想嘛~ 💕', emoji: '🥺' },
+  { text: '就想就想！🥺', emoji: '💗' },
+  { text: '求求你啦~ 🙏', emoji: '💝' }
+];
+
+function handleNo(event) {
+  noClickCount++;
+  const btnNo = document.getElementById('btnNo');
+  const btnGroup = document.getElementById('btnGroup');
+
+  if (noClickCount >= 3) {
+    // 两个按钮都变成"是的"
+    btnNo.className = 'btn btn-yes';
+    btnNo.textContent = '是的是的！😍';
+    btnNo.onclick = goToDate;
+    btnNo.style.transform = ''; // 重置位置
+    // 加一点抖动效果
+    btnNo.style.animation = 'none';
+    btnNo.offsetHeight; // reflow
+    btnNo.style.animation = 'shake 0.5s ease';
+    return;
+  }
+
+  // 更新文字
+  btnNo.textContent = noMessages[noClickCount - 1].text;
+
+  // 随机移动到Yes按钮周围
+  const btnYes = document.getElementById('btnYes1');
+  const yesRect = btnYes.getBoundingClientRect();
+  const noRect = btnNo.getBoundingClientRect();
+  const groupRect = btnGroup.getBoundingClientRect();
+
+  // 四个方向：上、下、左、右
+  const directions = ['top','bottom','left','right'];
+  const dir = directions[Math.floor(Math.random() * 4)];
+  const offsetX = 30 + Math.random() * 80; // 水平偏移
+  const offsetY = 30 + Math.random() * 80; // 垂直偏移
+
+  let tx = 0, ty = 0;
+  switch(dir) {
+    case 'top':    tx = (Math.random()-0.5)*offsetX*2; ty = -offsetY; break;
+    case 'bottom': tx = (Math.random()-0.5)*offsetX*2; ty = offsetY;  break;
+    case 'left':   tx = -offsetX; ty = (Math.random()-0.5)*offsetY*2; break;
+    case 'right':  tx = offsetX;  ty = (Math.random()-0.5)*offsetY*2; break;
+  }
+
+  // 确保不超出按钮组范围
+  const maxTX = groupRect.width/2 - noRect.width/2 - 10;
+  const maxTY = groupRect.height/2 - noRect.height/2 - 10;
+  tx = Math.max(-maxTX, Math.min(maxTX, tx));
+  ty = Math.max(-maxTY, Math.min(maxTY, ty));
+
+  btnNo.style.transform = `translate(${tx}px, ${ty}px)`;
+  btnNo.style.background = 'linear-gradient(135deg, #FFB6C1, #FF69B4)';
+  btnNo.style.color = 'white';
+
+  // 抖动Yes按钮
+  btnYes.style.animation = 'none';
+  btnYes.offsetHeight;
+  btnYes.style.animation = 'shake 0.5s ease';
+}
+
+// CSS抖动动画注入
+const shakeStyle = document.createElement('style');
+shakeStyle.textContent = `
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-8px); }
+  40%     { transform: translateX(8px); }
+  60%     { transform: translateX(-6px); }
+  80%     { transform: translateX(6px); }
+}`;
+document.head.appendChild(shakeStyle);
+
+// ========== 页面2: 日历 ==========
+let calYear, calMonth;
+const weekDays = ['日','一','二','三','四','五','六'];
+
+function buildCalendar(year, month) {
+  calYear = year; calMonth = month;
+  const container = document.getElementById('calendar');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const maxDate = new Date(today);
+  maxDate.setFullYear(maxDate.getFullYear() + 1);
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let html = '<div class="calendar-header">';
+  html += `<button id="btnPrev" onclick="changeMonth(-1)">◀</button>`;
+  html += `<span>${year}年 ${month+1}月</span>`;
+  html += `<button id="btnNext" onclick="changeMonth(1)">▶</button>`;
+  html += '</div>';
+
+  html += '<div class="calendar-weekdays">';
+  weekDays.forEach(d => { html += `<div>${d}</div>`; });
+  html += '</div>';
+
+  html += '<div class="calendar-days">';
+  // 空格子
+  for (let i = 0; i < firstDay; i++) {
+    html += '<div class="calendar-day empty"></div>';
+  }
+  // 日期格子
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    date.setHours(0,0,0,0);
+    let cls = 'calendar-day';
+    if (date.getTime() === today.getTime()) cls += ' today';
+    if (date < today || date > maxDate) cls += ' disabled';
+    if (selectedDate && date.getTime() === selectedDate.getTime()) cls += ' selected';
+    const onclick = (date < today || date > maxDate) ? '' : `onclick="selectDate(${year},${month},${d})"`;
+    html += `<div class="${cls}" ${onclick}>${d}</div>`;
+  }
+  html += '</div>';
+
+  container.innerHTML = html;
+
+  // 更新导航按钮状态
+  const prevBtn = container.querySelector('#btnPrev');
+  const nextBtn = container.querySelector('#btnNext');
+  if (prevBtn) {
+    const prevMonth = new Date(year, month - 1, 1);
+    const firstAllowedPrev = new Date(today.getFullYear(), today.getMonth(), 1);
+    prevBtn.disabled = prevMonth < firstAllowedPrev;
+  }
+  if (nextBtn) {
+    const nextMonth = new Date(year, month + 1, 1);
+    nextBtn.disabled = nextMonth > maxDate;
+  }
+}
+
+function changeMonth(delta) {
+  const newMonth = calMonth + delta;
+  const d = new Date(calYear, newMonth, 1);
+  buildCalendar(d.getFullYear(), d.getMonth());
+}
+
+function selectDate(year, month, day) {
+  selectedDate = new Date(year, month, day);
+  selectedDate.setHours(0,0,0,0);
+  buildCalendar(calYear, calMonth);
+
+  const weekDay = weekDays[selectedDate.getDay()];
+  const dateStr = `${year}年${month+1}月${day}日 星期${weekDay}`;
+  document.getElementById('selectedDateText').textContent = `📌 已选择：${dateStr}`;
+  document.getElementById('btnDateConfirm').disabled = false;
+}
+
+function goToDate() {
+  const today = new Date();
+  switchPage('page1', 'page2');
+  buildCalendar(today.getFullYear(), today.getMonth());
+  document.getElementById('btnDateConfirm').disabled = !selectedDate;
+}
+
+// ========== 页面3: 美食选择 ==========
+const foods = [
+  { name: '火锅',   emoji: '🍲', desc: '热气腾腾最暖心' },
+  { name: '日料',   emoji: '🍣', desc: '精致又浪漫' },
+  { name: '烤肉',   emoji: '🥩', desc: '滋滋作响超幸福' },
+  { name: '甜品下午茶', emoji: '🍰', desc: '甜甜的像你一样' },
+  { name: '西餐',   emoji: '🍝', desc: '烛光晚餐氛围感' },
+  { name: '小龙虾', emoji: '🦞', desc: '边吃边聊超开心' },
+  { name: '川菜',   emoji: '🌶️', desc: '火辣辣的热情' },
+  { name: '奶茶小吃', emoji: '🧋', desc: '逛街吃喝两不误' },
+];
+
+function buildFoodGrid() {
+  const grid = document.getElementById('foodGrid');
+  grid.innerHTML = foods.map((f, i) => `
+    <div class="food-card" id="food${i}" onclick="selectFood(${i})">
+      <span class="food-emoji">${f.emoji}</span>
+      ${f.name}
+      <div style="font-size:0.65em;opacity:0.6;margin-top:4px;">${f.desc}</div>
+    </div>
+  `).join('');
+}
+
+function selectFood(index) {
+  selectedFood = foods[index];
+  // 取消所有选中
+  document.querySelectorAll('.food-card').forEach(c => c.classList.remove('selected'));
+  // 选中当前
+  document.getElementById('food' + index).classList.add('selected');
+  document.getElementById('selectedFoodText').textContent = `🍴 已选择：${selectedFood.emoji} ${selectedFood.name}`;
+  document.getElementById('btnFoodConfirm').disabled = false;
+}
+
+function goToFood() {
+  buildFoodGrid();
+  switchPage('page2', 'page3');
+  document.getElementById('btnFoodConfirm').disabled = !selectedFood;
+}
+
+// ========== 页面4: 浪漫告白 ==========
+function goToLove() {
+  // 填入日期和美食信息
+  const weekDay = weekDays[selectedDate.getDay()];
+  const dateStr = `${selectedDate.getFullYear()}年${selectedDate.getMonth()+1}月${selectedDate.getDate()}日 星期${weekDay}`;
+  document.getElementById('ribbonDate').textContent = `📅 ${dateStr}`;
+  document.getElementById('ribbonFood').textContent = `${selectedFood.emoji} ${selectedFood.name}`;
+
+  switchPage('page3', 'page4');
+
+  // 页面4额外爱心爆发
+  burstHearts();
+}
+
+function burstHearts() {
+  const container = document.getElementById('floatingHearts');
+  const hearts = ['💖','💕','💗','💝','💘','💓','🩷','❤️'];
+  for (let i = 0; i < 15; i++) {
+    const span = document.createElement('span');
+    span.className = 'heart-particle';
+    span.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    span.style.left = Math.random() * 100 + '%';
+    span.style.animationDuration = (3 + Math.random() * 5) + 's';
+    span.style.animationDelay = Math.random() * 2 + 's';
+    span.style.fontSize = (20 + Math.random() * 36) + 'px';
+    span.style.opacity = '0.9';
+    container.appendChild(span);
+    // 动画结束后移除
+    setTimeout(() => span.remove(), 5000 + Math.random() * 3000);
+  }
+}
+</script>
+
+</body>
+</html>
