@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- QQ/微信分享预览 -->
+<meta property="og:title" content="奇奇 ❤ 小爽 — 约会邀请">
+<meta property="og:description" content="小爽~ 你想和你的男朋友奇奇约会吗？💕">
+<meta property="og:url" content="https://zzsaw115.github.io/dating-invitation/">
+<meta property="og:type" content="website">
+<meta itemprop="name" content="奇奇 ❤ 小爽 — 约会邀请">
+<meta itemprop="description" content="小爽~ 你想和你的男朋友奇奇约会吗？💕">
 <title>奇奇 ❤ 小爽</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -38,7 +45,7 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== 装饰爱心 ===== */
+/* ===== 装饰爱心/樱花 ===== */
 .floating-hearts {
   position: fixed;
   top: 0; left: 0;
@@ -52,10 +59,36 @@ body {
   opacity: 0.6;
   font-size: 24px;
 }
+.sakura-particle {
+  position: absolute;
+  animation: sakuraFall linear infinite;
+  opacity: 0.7;
+  font-size: 22px;
+}
 @keyframes floatUp {
   0%   { transform: translateY(100vh) rotate(0deg) scale(1); opacity: 0.8; }
   50%  { opacity: 0.4; }
   100% { transform: translateY(-100px) rotate(360deg) scale(0.3); opacity: 0; }
+}
+@keyframes sakuraFall {
+  0%   { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0.9; }
+  25%  { transform: translateY(25vh) translateX(30px) rotate(90deg); }
+  50%  { transform: translateY(50vh) translateX(-20px) rotate(180deg); opacity: 0.5; }
+  75%  { transform: translateY(75vh) translateX(15px) rotate(270deg); }
+  100% { transform: translateY(105vh) translateX(-10px) rotate(360deg); opacity: 0; }
+}
+
+/* ===== 点击粒子 ===== */
+.click-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  animation: clickBurst 0.8s ease-out forwards;
+  font-size: 20px;
+}
+@keyframes clickBurst {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
 
 /* ===== 主卡片 ===== */
@@ -404,6 +437,10 @@ body {
     <div style="margin:5px 0;">
       <span class="love-ribbon" id="ribbonFood"></span>
     </div>
+    <!-- 悄悄话 -->
+    <div style="margin:18px 0;padding:16px 20px;background:linear-gradient(135deg,#FFF0F5,#FFE4E1);border-radius:20px;border:2px dashed #FFB6C1;">
+      <p style="color:#D6336C;font-size:1em;line-height:1.7;margin:0;" id="secretMsg"></p>
+    </div>
     <p class="love-detail" style="margin-top:20px;">
       说好啦，不许反悔哦~<br>拉钩上吊一百年不许变！
     </p>
@@ -417,12 +454,15 @@ let noClickCount = 0;
 let selectedDate = null;
 let selectedFood = null;
 
-// ========== 浮动爱心 ==========
+// ========== 浮动爱心 + 樱花 ==========
 function createFloatingHearts() {
   const container = document.getElementById('floatingHearts');
-  const hearts = ['💕','💖','💗','💝','🌸','🩷','✨','💓'];
+  const hearts = ['💕','💖','💗','💝','🩷','💓'];
+  const sakuras = ['🌸','💮','🌺','🏵️','🌷','🪷'];
   const isMobile = window.innerWidth < 480;
-  const count = isMobile ? 10 : 20; // 手机端减少爱心，更流畅
+  const count = isMobile ? 10 : 20;
+
+  // 浮动爱心
   for (let i = 0; i < count; i++) {
     const span = document.createElement('span');
     span.className = 'heart-particle';
@@ -431,6 +471,19 @@ function createFloatingHearts() {
     span.style.animationDuration = (8 + Math.random() * 12) + 's';
     span.style.animationDelay = Math.random() * 10 + 's';
     span.style.fontSize = (16 + Math.random() * 28) + 'px';
+    container.appendChild(span);
+  }
+
+  // 樱花飘落
+  const sakuraCount = isMobile ? 8 : 16;
+  for (let i = 0; i < sakuraCount; i++) {
+    const span = document.createElement('span');
+    span.className = 'sakura-particle';
+    span.textContent = sakuras[Math.floor(Math.random() * sakuras.length)];
+    span.style.left = Math.random() * 100 + '%';
+    span.style.animationDuration = (10 + Math.random() * 15) + 's';
+    span.style.animationDelay = Math.random() * 12 + 's';
+    span.style.fontSize = (18 + Math.random() * 26) + 'px';
     container.appendChild(span);
   }
 }
@@ -445,9 +498,18 @@ function switchPage(fromId, toId) {
 
 // ========== 页面1: 拒绝按钮逻辑 ==========
 const noMessages = [
-  { text: '想嘛想嘛~ 💕', emoji: '🥺' },
-  { text: '就想就想！🥺', emoji: '💗' },
-  { text: '求求你啦~ 🙏', emoji: '💝' }
+  { text: '想嘛想嘛~ 💕' },
+  { text: '就想就想！🥺' },
+  { text: '求求你啦~ 🙏' },
+  { text: '奇奇好想你~ 💗' },
+  { text: '不去不行！🤨' },
+  { text: '再点我就不理你了！😤' },
+  { text: '呜呜呜别拒绝嘛~ 😭' },
+  { text: '人家准备了超多惊喜的！🎁' },
+  { text: '你舍得拒绝嘛~ 🥹' },
+  { text: '点点别的试试？👉👈' },
+  { text: '奇奇都帮你剥虾！🦐' },
+  { text: '请你看电影还不行嘛~ 🎬' },
 ];
 
 function handleNo(event) {
@@ -468,8 +530,8 @@ function handleNo(event) {
     return;
   }
 
-  // 更新文字
-  btnNo.textContent = noMessages[noClickCount - 1].text;
+  // 随机选一条撒娇文案
+  btnNo.textContent = noMessages[Math.floor(Math.random() * noMessages.length)].text;
 
   // 随机移动到Yes按钮周围
   const btnYes = document.getElementById('btnYes1');
@@ -520,6 +582,33 @@ shakeStyle.textContent = `
   80%     { transform: translateX(6px); }
 }`;
 document.head.appendChild(shakeStyle);
+
+// ========== 点击粒子特效 ==========
+function spawnClickParticles(e) {
+  const particles = ['💕','💖','💗','✨','💝','🩷','🌟','💘'];
+  const count = 8;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('span');
+    p.className = 'click-particle';
+    p.textContent = particles[Math.floor(Math.random() * particles.length)];
+    p.style.left = e.clientX + 'px';
+    p.style.top = e.clientY + 'px';
+    p.style.fontSize = (14 + Math.random() * 22) + 'px';
+    // 随机飞散方向
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 40 + Math.random() * 80;
+    p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--ty', Math.sin(angle) * dist - 40 + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 800);
+  }
+}
+// 在所有按钮上绑定点击粒子
+document.addEventListener('click', function(e) {
+  if (e.target.closest('button')) {
+    spawnClickParticles(e);
+  }
+});
 
 // ========== 页面2: 日历 ==========
 let calYear, calMonth;
@@ -650,6 +739,10 @@ function goToLove() {
   const dateStr = `${selectedDate.getFullYear()}年${selectedDate.getMonth()+1}月${selectedDate.getDate()}日 星期${weekDay}`;
   document.getElementById('ribbonDate').textContent = `📅 ${dateStr}`;
   document.getElementById('ribbonFood').textContent = `${selectedFood.emoji} ${selectedFood.name}`;
+
+  // 悄悄话
+  document.getElementById('secretMsg').innerHTML =
+    '💌 <b>奇奇的悄悄话：</b><br>希望早点结束异地恋，我爱你小宝宝 💕';
 
   switchPage('page3', 'page4');
 
